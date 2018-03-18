@@ -1,0 +1,1829 @@
+//Name : Kiran Nayak             CSULB ID: 015271332               Class: APL 2:00-3:15 pm               
+package Grammar;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.Scanner;
+import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import javax.script.ScriptEngine;
+
+
+
+public class SIL {
+	static List<String> globlist = new ArrayList<String>();
+	public static HashMap <String, Storeobj> mapper = new HashMap();
+	public static LinkedHashMap<String,String> storeline = new LinkedHashMap();
+    static String[] lineno = new String[50];
+    public static int globcount;
+    public static Stack<Integer> retnlines = new Stack();
+    public static int iftoprint;
+    public static boolean iftopflag=false;
+	public static void main(String args[]) throws IOException, ScriptException
+	{
+		try{
+			BufferedReader in = new BufferedReader(new FileReader("input.txt"));
+			String str;
+			SIL sil1 = new SIL();
+			List<String> list = new ArrayList<String>();
+			String temp;
+			int j=0;
+			while((str = in.readLine()) != null){
+				list.add(str);
+				sil1.splitInput(str);
+				//System.out.println(str);
+			    lineno[j]=globlist.get(0);
+			    j++;
+				//System.out.println(globlist.get(0));
+			    
+			    storeline.put(globlist.get(0), str);
+			    globlist.clear();
+			}
+              
+			for(globcount=0;globcount<(storeline.size()-1);globcount++)
+			{
+				temp = storeline.get(lineno[globcount]);
+				//System.out.println(temp);
+				sil1.splitInput(temp);
+				sil1.myans();
+				
+			}
+
+			//
+			/*int i=1;
+			SIL sil1 = new SIL();
+			String temp;
+			Iterator<String> mylist = list.iterator();
+			Iterator<String> giterator = globlist.iterator();
+			while (mylist.hasNext()) {
+				//System.out.println("Line " + i );
+				temp = mylist.next();
+
+				sil1.splitInput(temp);
+				sil1.myans();
+
+				i=i+1;
+			} */
+
+
+			//String[] stringArr = list.toArray(new String[0]);	
+
+
+		}
+		catch(Exception e)
+		{
+			System.err.println("Please Check Grammar!");
+
+		}
+	}
+
+	
+	public int forprint(Iterator<String> giterator) throws ScriptException
+	{   
+		int i;
+		if(!iftopflag)
+		{
+		 i=2;
+		 
+		}
+		else
+		{
+		 i=iftoprint;	
+		 iftopflag=false;
+		}
+	
+	
+	
+	int k;
+	String temp = globlist.get(i);
+	giterator.next();
+	++i;
+
+
+	ScriptEngineManager mgr = new ScriptEngineManager();
+	ScriptEngine engine = mgr.getEngineByName("JavaScript");
+	//TEst area
+	int firstint ;
+	String sbstring;
+	String tempifnotint = null;
+	String evalme = "";
+	String tempnextstore;
+	String checkback;
+
+
+
+	if (temp.startsWith("\""))
+	{
+		System.out.print(temp.substring(1, temp.length()-1));
+		checkback = globlist.get(i);
+		if(!checkback.equals(""))
+		{
+			if(!checkback.equals(","))
+			{
+				System.err.print("Check comma position!");
+			}
+
+		}
+		temp=globlist.get(i);
+		i++;
+		giterator.next();
+	}
+	if(temp.equals(","))
+	{temp=globlist.get(i);i++;giterator.next();;}
+
+	if(temp.equals("+")||temp.equals("-")||temp.equals("*")||temp.equals("/")||temp.equals("(")||temp.equals(")")||temp.equals("%"))
+	{
+		evalme+=temp;
+		temp=globlist.get(i);i++;giterator.next();
+	}
+
+	if(temp.equals(""))
+	{}
+	else
+	{
+		String str = temp.toString();
+		if(str == null || str.isEmpty()) System.out.println("Empty");;
+
+		StringBuilder sb = new StringBuilder();
+		boolean found = false;
+		char tempchar = str.charAt(0);
+		if(Character.isDigit(tempchar))
+		{
+			for(char c : str.toCharArray()){
+				if(Character.isDigit(c)){
+					sb.append(c);
+					found = true;
+				} else if(found){
+					// If we already found a digit before and this char is not a digit, stop looping
+					break;                
+				}
+			}
+			sbstring=sb.toString();
+			firstint = Integer.parseInt(sbstring);
+			evalme += firstint;
+			if(giterator.hasNext())
+			{
+				k=i;
+				String check = globlist.get(k);
+				if(check.equals("(")||check.equals(")")||check.equals("+")||check.equals("-")||check.equals("*")||check.equals("/"))
+				{}
+				else if(check.equals(","))
+				{System.out.print(engine.eval(evalme));
+				evalme="";
+				}
+				else
+				{
+					System.err.print("CHECK GRAMMAR!");
+				}
+
+
+			}
+			sb.setLength(0);
+		}
+		else
+		{
+			Storeobj value = mapper.get(str);
+			if(value!=null)
+			{
+				Integer memory = value.getvalue();
+				firstint=memory;
+				evalme += firstint;
+				if(giterator.hasNext())
+				{
+					k=i;
+					String check = globlist.get(k);
+					if(check.equals("(")||check.equals(")")||check.equals("+")||check.equals("-")||check.equals("*")||check.equals("/"))
+					{}
+					else if(check.equals(","))
+					{
+						System.out.print(engine.eval(evalme));
+						evalme="";
+					}
+					else
+					{
+						System.err.println("CHECK GRAMMAR!");
+					}
+				}
+				//else
+				//	evalme += firstint;
+			}
+			else
+			{System.err.println("not defined var "+str);
+			}
+		}
+
+
+
+	}
+	for (int j = i; j < globlist.size(); j++) 
+	{  temp=globlist.get(j);
+	giterator.next();
+	if (temp.startsWith("\""))
+	{  checkback=globlist.get(j-1);
+	if(!checkback.equals(","))
+	{
+		System.err.print("Check comma position");
+	}
+	System.out.print(temp.substring(1, temp.length()-1));
+	if(giterator.hasNext())
+	{checkback=globlist.get(j+1);
+	if(!checkback.equals(""))
+	{
+		if(!checkback.equals(","))
+		{
+			System.err.print("Check comma position");
+		}
+	}
+	}
+	++j;
+	temp=globlist.get(j);
+	giterator.next();
+	}
+	if(temp.equals(","))
+	{
+
+		if(!giterator.hasNext())
+		{
+			System.err.println("Comma in the end isn't a correct grammar!");
+		}
+		continue;
+
+	}
+	if(temp.equals(""))
+		continue;
+	if(temp.equals("+")||temp.equals("-")||temp.equals("*")||temp.equals("/")||temp.equals("(")||temp.equals(")")||temp.equals("%"))
+	{
+		evalme+=temp;
+		//recent modification
+		if(giterator.hasNext())
+		{
+		k=j+1;
+		String check = globlist.get(k);
+		if(check.equals(","))
+		{System.out.print(engine.eval(evalme));
+		evalme="";
+		}
+		}
+		else
+		{
+			System.out.print(engine.eval(evalme));
+			evalme="";
+			
+		}
+		
+	}
+	else
+	{
+		String str = temp.toString();
+		if(str == null || str.isEmpty()) System.out.println("Empty");;
+
+		StringBuilder sb = new StringBuilder();
+		boolean found = false;
+		char tempchar = str.charAt(0);
+		if(Character.isDigit(tempchar))
+		{
+			for(char c : str.toCharArray()){
+				if(Character.isDigit(c)){
+					sb.append(c);
+					found = true;
+				} else if(found){
+					// If we already found a digit before and this char is not a digit, stop looping
+					break;                
+				}
+			}
+			sbstring=sb.toString();
+			firstint = Integer.parseInt(sbstring);
+			evalme += firstint;
+			//
+
+			if(giterator.hasNext())
+			{
+				k=j+1;
+				String check = globlist.get(k);
+				if(check.equals("(")||check.equals(")")||check.equals("+")||check.equals("-")||check.equals("*")||check.equals("/"))
+				{}
+				else if(check.equals(","))
+				{System.out.print(engine.eval(evalme));
+				evalme="";
+				}
+				else
+				{
+					System.err.print("CHECK GRAMMAR!");
+				}
+
+			}
+			//
+			sb.setLength(0);
+		}
+		else
+		{
+			Storeobj value = mapper.get(str);
+			if(value!=null)
+			{
+				Integer memory = value.getvalue();
+				firstint=memory;
+				evalme+=firstint;
+				if(giterator.hasNext())
+				{
+					k=j+1;
+					String check = globlist.get(k);
+					if(check.equals("(")||check.equals(")")||check.equals("+")||check.equals("-")||check.equals("*")||check.equals("/"))
+					{}
+					else if(check.equals(","))
+					{
+						System.out.print(engine.eval(evalme));
+						evalme="";
+					}
+					else
+					{
+						System.err.println("CHECK GRAMMAR!");
+					}
+				}
+				else
+				{
+					//evalme += firstint;
+
+				}
+			}
+			else
+			{System.err.println("not defined var "+temp);
+			}
+		}
+
+
+
+	}	
+
+
+
+	}
+
+
+
+	//System.out.println(evalme);
+
+	if(!evalme.equals(""))
+	{
+		int abc;
+
+		try{
+
+			abc = (int)engine.eval(evalme);
+
+		}
+		catch( java.lang.ClassCastException e)
+		{
+			Double d = (double)engine.eval(evalme);
+			abc= d.intValue();
+			return abc;
+		}
+		return abc;
+
+	}
+	else
+	{
+		return -1;
+	}
+
+	}
+
+	public int forprintln(Iterator<String> giterator) throws ScriptException
+	{   int i;
+	if(!iftopflag)
+	{
+	 i=2;
+	 
+	}
+	else
+	{
+	 i=iftoprint;
+	 iftopflag=false;
+	}
+	int k;
+	String temp = globlist.get(i);
+	giterator.next();
+	++i;
+
+
+	ScriptEngineManager mgr = new ScriptEngineManager();
+	ScriptEngine engine = mgr.getEngineByName("JavaScript");
+	//TEst area
+	int firstint ;
+	String sbstring;
+	String tempifnotint = null;
+	String evalme = "";
+	String tempnextstore;
+	String checkback;
+
+
+
+	if (temp.startsWith("\""))
+	{
+		System.out.print(temp.substring(1, temp.length()-1));
+		checkback = globlist.get(i);
+		if(!checkback.equals(""))
+		{
+			if(!checkback.equals(","))
+			{
+				System.err.print("Check comma position!");
+			}
+
+		}
+		temp=globlist.get(i);
+		i++;
+		giterator.next();
+	}
+	if(temp.equals(","))
+	{temp=globlist.get(i);i++;giterator.next();;}
+
+	if(temp.equals("+")||temp.equals("-")||temp.equals("*")||temp.equals("/")||temp.equals("(")||temp.equals(")")||temp.equals("%"))
+	{
+		evalme+=temp;
+		temp=globlist.get(i);i++;giterator.next();
+	}
+
+	if(temp.equals(""))
+	{}
+	else
+	{
+		String str = temp.toString();
+		if(str == null || str.isEmpty()) System.out.println("Empty");;
+
+		StringBuilder sb = new StringBuilder();
+		boolean found = false;
+		char tempchar = str.charAt(0);
+		if(Character.isDigit(tempchar))
+		{
+			for(char c : str.toCharArray()){
+				if(Character.isDigit(c)){
+					sb.append(c);
+					found = true;
+				} else if(found){
+					// If we already found a digit before and this char is not a digit, stop looping
+					break;                
+				}
+			}
+			sbstring=sb.toString();
+			firstint = Integer.parseInt(sbstring);
+			evalme += firstint;
+			if(giterator.hasNext())
+			{
+				k=i;
+				String check = globlist.get(k);
+				if(check.equals("(")||check.equals(")")||check.equals("+")||check.equals("-")||check.equals("*")||check.equals("/"))
+				{}
+				else if(check.equals(","))
+				{System.out.print(engine.eval(evalme));
+				evalme="";
+				}
+				else
+				{
+					System.err.print("CHECK GRAMMAR!");
+				}
+
+			}
+			sb.setLength(0);
+		}
+		else
+		{
+			Storeobj value = mapper.get(str);
+			if(value!=null)
+			{
+				Integer memory = value.getvalue();
+				firstint=memory;
+				evalme += firstint;
+				if(giterator.hasNext())
+				{
+					k=i;
+					String check = globlist.get(k);
+					if(check.equals("(")||check.equals(")")||check.equals("+")||check.equals("-")||check.equals("*")||check.equals("/"))
+					{}
+					else if(check.equals(","))
+					{
+						System.out.print(engine.eval(evalme));
+						evalme="";
+					}
+					else
+					{
+						System.err.println("CHECK GRAMMAR!");
+					}
+				}
+				//else
+					//evalme += firstint;
+			}
+			else
+			{System.err.println("not defined var "+str);
+			}
+		}
+
+
+
+	}
+	for (int j = i; j < globlist.size(); j++) 
+	{  temp=globlist.get(j);
+	giterator.next();
+	if (temp.startsWith("\""))
+	{  checkback=globlist.get(j-1);
+	if(!checkback.equals(","))
+	{
+		System.err.print("Check comma position");
+	}
+	System.out.print(temp.substring(1, temp.length()-1));
+	if(giterator.hasNext())
+	{checkback=globlist.get(j+1);
+	if(!checkback.equals(""))
+	{
+		if(!checkback.equals(","))
+		{
+			System.err.print("Check comma position");
+		}
+	}
+	}
+	++j;
+	temp=globlist.get(j);
+	giterator.next();
+	}
+	if(temp.equals(","))
+	{
+		if(!giterator.hasNext())
+		{
+			System.err.println("Comma in the end isn't a correct grammar!");
+		}
+		continue;
+
+	}
+	if(temp.equals(""))
+		continue;
+	if(temp.equals("+")||temp.equals("-")||temp.equals("*")||temp.equals("/")||temp.equals("(")||temp.equals(")")||temp.equals("%"))
+	{
+		evalme+=temp;
+		//recent modification
+		if(giterator.hasNext())
+		{
+		k=j+1;
+		String check = globlist.get(k);
+		if(check.equals(","))
+		{System.out.print(engine.eval(evalme));
+		evalme="";
+		}
+		}
+		else
+		{
+			System.out.print(engine.eval(evalme));
+			evalme="";
+			
+		}
+		
+	}
+	else
+	{
+		String str = temp.toString();
+		if(str == null || str.isEmpty()) System.out.println("Empty");;
+
+		StringBuilder sb = new StringBuilder();
+		boolean found = false;
+		char tempchar = str.charAt(0);
+		if(Character.isDigit(tempchar))
+		{
+			for(char c : str.toCharArray()){
+				if(Character.isDigit(c)){
+					sb.append(c);
+					found = true;
+				} else if(found){
+					// If we already found a digit before and this char is not a digit, stop looping
+					break;                
+				}
+			}
+			sbstring=sb.toString();
+			firstint = Integer.parseInt(sbstring);
+			evalme += firstint;
+			//
+
+			if(giterator.hasNext())
+			{
+				k=j+1;
+				String check = globlist.get(k);
+				if(check.equals("(")||check.equals(")")||check.equals("+")||check.equals("-")||check.equals("*")||check.equals("/"))
+				{}
+				else if(check.equals(","))
+				{System.out.print(engine.eval(evalme));
+				evalme="";
+				}
+				else
+				{
+					System.err.print("CHECK GRAMMAR!");
+				}
+
+
+			}
+			//
+			sb.setLength(0);
+		}
+		else
+		{
+			Storeobj value = mapper.get(str);
+			if(value!=null)
+			{
+				Integer memory = value.getvalue();
+				firstint=memory;
+				evalme+=firstint;
+				if(giterator.hasNext())
+				{
+					k=j+1;
+					String check = globlist.get(k);
+					if(check.equals("(")||check.equals(")")||check.equals("+")||check.equals("-")||check.equals("*")||check.equals("/"))
+					{}
+					else if(check.equals(","))
+					{
+						System.out.print(engine.eval(evalme));
+						evalme="";
+					}
+					else
+					{
+						System.err.print("CHECK GRAMMAR!");
+					}
+				}
+				else
+				{
+					//evalme += firstint;
+
+				}
+			}
+			else
+			{System.err.println("not defined var "+temp);
+			}
+		}
+
+
+
+	}	
+
+
+
+	}
+
+
+
+	//System.out.println(evalme);
+
+	if(!evalme.equals(""))
+	{
+		int abc;
+
+		try{
+
+			abc = (int)engine.eval(evalme);
+
+		}
+		catch( java.lang.ClassCastException e)
+		{
+			Double d = (double)engine.eval(evalme);
+			abc= d.intValue();
+			return abc;
+		}
+		return abc;
+
+	}
+	else
+	{
+		System.out.println("");
+		return -1;
+	}
+
+	}
+
+	public void forlet (Iterator<String> giterator) throws ScriptException
+	{
+
+		String tempvar = giterator.next();
+		int tempvalue;
+		if(giterator.next().equals("="))
+		{    String temp=giterator.next();
+
+		ScriptEngineManager mgr = new ScriptEngineManager();
+		ScriptEngine engine = mgr.getEngineByName("JavaScript");
+		//TEst area
+		int firstint ;
+		String sbstring;
+		String tempifnotint = null;
+		String evalme = "";
+		String tempnextstore;
+
+		if(temp.equals("+")||temp.equals("-")||temp.equals("*")||temp.equals("/")||temp.equals("(")||temp.equals(")")||temp.equals("%"))
+		{
+			evalme+=temp;
+			evalme+=" ";
+		}
+		else
+		{
+			String str = temp.toString();
+			if(str == null || str.isEmpty()) System.out.println("Empty");;
+
+			StringBuilder sb = new StringBuilder();
+			boolean found = false;
+			char tempchar = str.charAt(0);
+			if(Character.isDigit(tempchar))
+			{
+				for(char c : str.toCharArray()){
+					if(Character.isDigit(c)){
+						sb.append(c);
+						found = true;
+					} else if(found){
+						// If we already found a digit before and this char is not a digit, stop looping
+						break;                
+					}
+				}
+				sbstring=sb.toString();
+				firstint = Integer.parseInt(sbstring);
+				evalme += firstint;
+				evalme+=" ";
+				sb.setLength(0);
+			}
+			else
+			{
+				Storeobj value = mapper.get(str);
+				if(value!=null)
+				{
+					Integer memory = value.getvalue();
+					firstint=memory;
+					evalme += firstint;
+					evalme+=" ";
+				}
+				else
+				{System.err.println("not defined var "+str);
+				}
+			}
+
+
+
+		}
+		while(giterator.hasNext())
+		{  temp=giterator.next();
+
+
+
+		if(temp.equals("+")||temp.equals("-")||temp.equals("*")||temp.equals("/")||temp.equals("(")||temp.equals(")")||temp.equals("%"))
+		{
+			evalme+=temp;
+			evalme+=" ";
+
+		}
+		else
+		{
+			String str = temp.toString();
+			if(str == null || str.isEmpty()) System.out.println("Empty");;
+
+			StringBuilder sb = new StringBuilder();
+			boolean found = false;
+			char tempchar = str.charAt(0);
+			if(Character.isDigit(tempchar))
+			{
+				for(char c : str.toCharArray()){
+					if(Character.isDigit(c)){
+						sb.append(c);
+						found = true;
+					} else if(found){
+						// If we already found a digit before and this char is not a digit, stop looping
+						break;                
+					}
+				}
+				sbstring=sb.toString();
+				firstint = Integer.parseInt(sbstring);
+				evalme += firstint;
+				sb.setLength(0);
+			}
+			else
+			{
+				Storeobj value = mapper.get(str);
+				if(value!=null)
+				{
+					Integer memory = value.getvalue();
+					firstint=memory;
+					evalme += firstint;
+					evalme+=" ";
+				}
+				else
+				{System.err.println("not defined var "+str);
+				}
+			}
+
+
+
+		}	
+
+
+
+		}
+
+
+
+		//System.out.println(evalme);
+		int abc;
+		try{
+
+			abc = (int)engine.eval(evalme);
+
+		}
+		catch( java.lang.ClassCastException e)
+		{
+			Double d = (double)engine.eval(evalme);
+			abc= d.intValue();
+
+		} 
+
+		SIL sil1=new SIL();
+		//abc = sil1.eval(evalme);
+		//System.out.println(abc);
+		int calcvalue = abc;
+		Storeobj value = mapper.get(tempvar);
+		if(value!=null)
+		{
+			value.setvalue(calcvalue);
+		}
+		else
+		{System.err.println("not defined var "+tempvar);
+		System.exit(0);
+		}
+
+
+
+
+		}
+	}
+
+	public void forinputtest (Iterator<String> giterator)
+	{
+		String[] hasinputs = new String[20];
+		String temp;
+		int i=0;
+		int j=1;
+
+		temp=giterator.next();
+		hasinputs[i]=temp;
+		i++;
+		while(giterator.hasNext())
+		{temp=giterator.next();
+		j++;
+		if(j%2==0)
+		{
+			if(temp.equals(","))
+			{
+
+			}
+			else
+				System.err.println("NO , detected");
+		}
+		else
+		{
+			if(!temp.equals(","))
+			{
+				hasinputs[i]=temp;
+				i++;
+			}
+
+		}
+		}
+
+
+		Scanner in = new Scanner(System.in);
+		int[] vars = new int[i];
+
+		for(int k = 0; k < vars.length; k++)
+			vars[k] = in.nextInt();
+		for (int l : vars) {
+			//System.out.println(l);
+		}
+
+		for(int m=0;m<vars.length;m++)
+		{
+			Storeobj value1 = mapper.get(hasinputs[m]);
+			if(value1 != null)
+			{   
+				value1.setvalue(vars[m]);
+			}
+			else
+			{
+				System.err.println("not defined var "+hasinputs[m]);
+			}
+
+		}
+
+
+
+	}
+
+	public void forinput (Iterator<String> giterator)
+	{ 
+		Scanner sc = new Scanner(System.in);
+		String temp2;
+		String temp1 = giterator.next();
+		Storeobj value = mapper.get(temp1);
+		if(value != null)
+		{   int i = sc.nextInt();
+		value.setvalue(i);
+		}
+		else
+		{
+			System.err.println("not defined var "+temp1);
+		}
+
+		while(giterator.hasNext())
+		{    
+
+
+			if(giterator.next()!=",")
+			{
+				int i;
+				temp2=giterator.next();
+
+				Storeobj value1 = mapper.get(temp2);
+				if(value1 != null)
+				{   i = sc.nextInt();
+				value1.setvalue(i);
+				}
+				else
+				{
+					System.err.println("not defined var "+temp2);
+				}
+
+			}
+		}
+
+
+	}
+
+	public void forint(Iterator<String> giterator)
+	{   try{
+		String temp2;
+		String temp1 = giterator.next();
+		mapper.put(temp1, new Storeobj(temp1,"Integer",0));
+		int counter = 1;
+		while(giterator.hasNext())
+		{  ++counter;
+		temp2=giterator.next();
+
+		if(counter%2==0)
+		{
+
+			if(!temp2.equals(","))
+			{
+				System.err.println("Use , only");
+
+			}
+		}
+		else
+		{
+			if(!temp2.equals(","))
+			{
+				mapper.put(temp2, new Storeobj(temp2,"Integer",0));
+			}
+		}
+		}
+	}
+	catch(Exception e)
+	{
+		System.err.println(e);
+	}
+
+	}
+	
+	public void forgoto(Iterator<String> giterator)
+	{
+		String temp = giterator.next();
+		int match=-99;
+		Integer i;
+		for( i=0;i<storeline.size();i++)
+		{
+			if(temp.equals(lineno[i]))
+			{
+				match=i;
+			}
+				
+			
+		}
+		if(match!=-99)
+		{
+			globcount=match-1;
+		}
+		else
+		{
+			
+			System.err.println("Please provide correct Line number after GOTO");
+			System.exit(0);
+		}
+		
+	
+	//System.out.println(globcount);
+	}
+	public void forgosub(Iterator<String> giterator)
+	{
+		String temp = giterator.next();
+		int match=-99;
+		Integer i;
+		for( i=0;i<storeline.size();i++)
+		{
+			if(temp.equals(lineno[i]))
+			{
+				match=i;
+			}
+				
+			
+		}
+		retnlines.push(globcount);
+		if(match!=-99)
+		{
+			globcount=match-1;
+		}
+		else
+		{
+			
+			System.err.println("Please provide correct Line number after GOTO");
+		}
+	
+	//System.out.println(globcount);
+	}
+	
+	public void forret(Iterator<String> giterator)
+	{
+		
+		if(retnlines.empty())
+		{
+			System.err.println("Please check if ret is correctly placed!!");
+			System.exit(0);
+		}
+		else
+		{
+		globcount=retnlines.pop();
+		}
+		//System.out.println(globcount);
+	}
+	
+	public boolean forif(Iterator<String> giterator) throws ScriptException
+	{   int i;
+        int k;
+	String temp;
+	String evalme="";
+	ScriptEngineManager mgr = new ScriptEngineManager();
+	ScriptEngine engine = mgr.getEngineByName("JavaScript");
+	int firstint ;
+	String sbstring;
+	String tempifnotint = null;
+	String tempnextstore;
+	String checkback;
+	int value1=0;
+	int value2=0;
+	SIL sil1 = new SIL();
+	
+	
+	
+	
+	for (i=2;i<globlist.size();i++)
+	{  temp=globlist.get(i);
+	   giterator.next();
+	   
+	   if(!temp.equals(">")&&!temp.equals("<")&&!temp.equals("="))
+	   {   
+
+		
+		
+		if(temp.equals("+")||temp.equals("-")||temp.equals("*")||temp.equals("/")||temp.equals("(")||temp.equals(")")||temp.equals("%"))
+		{
+			evalme+=temp;
+			
+		}
+		//test
+		
+		else
+		{
+			String str = temp.toString();
+			if(str == null || str.isEmpty()) System.out.println("Empty");;
+
+			StringBuilder sb = new StringBuilder();
+			boolean found = false;
+			char tempchar = str.charAt(0);
+			if(Character.isDigit(tempchar))
+			{
+				for(char c : str.toCharArray()){
+					if(Character.isDigit(c)){
+						sb.append(c);
+						found = true;
+					} else if(found){
+						// If we already found a digit before and this char is not a digit, stop looping
+						break;                
+					}
+				}
+				sbstring=sb.toString();
+				firstint = Integer.parseInt(sbstring);
+				evalme += firstint;
+				sb.setLength(0);
+			}
+			else
+			{
+				Storeobj value = mapper.get(str);
+				if(value!=null)
+				{
+					Integer memory = value.getvalue();
+					firstint=memory;
+					evalme += firstint;
+					
+					
+					//else
+					//	evalme += firstint;
+				}
+				else
+				{System.err.println("not defined var "+str);
+				}
+			}
+		}
+		
+		//testends
+	}
+	   else
+	   {   
+		   try{
+
+				value1 = (int)engine.eval(evalme);
+
+			}
+			catch( java.lang.ClassCastException e)
+			{
+				Double d = (double)engine.eval(evalme);
+				value1= d.intValue();
+
+			}
+		   break;
+	   }
+	}
+	
+	String sign;
+	sign = globlist.get(i);
+	
+	i++;
+	giterator.next();
+    evalme = "";	
+	for (;i<globlist.size();i++)
+	{  temp=globlist.get(i);
+	   
+	   
+	   if(!temp.equals("then"))
+	   {   
+
+		   giterator.next();
+		
+		if(temp.equals("+")||temp.equals("-")||temp.equals("*")||temp.equals("/")||temp.equals("(")||temp.equals(")")||temp.equals("%"))
+		{
+			evalme+=temp;
+			
+		}
+		//test
+		
+		else
+		{
+			String str = temp.toString();
+			if(str == null || str.isEmpty()) System.out.println("Empty");;
+
+			StringBuilder sb = new StringBuilder();
+			boolean found = false;
+			char tempchar = str.charAt(0);
+			if(Character.isDigit(tempchar))
+			{
+				for(char c : str.toCharArray()){
+					if(Character.isDigit(c)){
+						sb.append(c);
+						found = true;
+					} else if(found){
+						// If we already found a digit before and this char is not a digit, stop looping
+						break;                
+					}
+				}
+				sbstring=sb.toString();
+				firstint = Integer.parseInt(sbstring);
+				evalme += firstint;
+				sb.setLength(0);
+			}
+			else
+			{
+				Storeobj value = mapper.get(str);
+				if(value!=null)
+				{
+					Integer memory = value.getvalue();
+					firstint=memory;
+					evalme += firstint;
+					
+					
+					//else
+					//	evalme += firstint;
+				}
+				else
+				{System.err.println("not defined var "+str);
+				}
+			}
+		}
+		
+		//testends
+	}
+	   else
+	   {   
+		   try{
+
+				value2 = (int)engine.eval(evalme);
+
+			}
+			catch( java.lang.ClassCastException e)
+			{
+				Double d = (double)engine.eval(evalme);
+				value2= d.intValue();
+
+			}
+		   break;
+	   }
+	}
+	
+	//System.out.println(value1 + "  is  " + sign + "  is "+ value2);
+	String checknext;
+	checknext=globlist.get(i+1);
+	
+	
+	
+    switch(sign)
+    {
+    
+    case ">":
+    {
+    	if(value1>value2)
+    	{
+    		if(checknext.equals("print")||checknext.equals("println"))
+    		{
+    			iftoprint=i+2;
+    		    iftopflag=true;
+    			
+    		}
+    		return true;
+    	}
+    	else
+    	{
+    		
+    		while(giterator.hasNext())
+    			giterator.next();
+    		break;
+    	}
+    	
+    }
+    case "<":
+    {
+    	if(value1<value2)
+    	{
+    		if(checknext.equals("print")||checknext.equals("println"))
+    		{
+    			iftoprint=i+2;
+    		    iftopflag=true;
+    			
+    		}
+    		return true;
+    	}
+    	else
+    	{
+    		while(giterator.hasNext())
+    			giterator.next();
+    	     break;
+    	}
+       
+    	
+    }
+    case "=":
+    {
+    	if(value1==value2)
+    	{
+    		if(checknext.equals("print")||checknext.equals("println"))
+    		{
+    			iftoprint=i+2;
+    		    iftopflag=true;
+    			
+    		}
+    		return true;
+    	}
+    	else
+    	{
+    		while(giterator.hasNext())
+    			giterator.next();
+    	     break;
+    	}
+    	
+    }
+    }
+	
+	
+	
+	
+	
+	
+	return false;
+	
+	}
+	
+	public void myans() throws ScriptException
+	{
+		SIL sil1 = new SIL();
+		//lets get rig of space
+		int p;
+		for(p=0;p<globlist.size()-1;p++)
+		{   String wtf  = globlist.get(p);  
+			if(globlist.get(p).equals(""))
+			{
+				globlist.remove(p);
+				p=p-1;
+			}
+		}
+		
+		//space check over 
+		
+		Iterator<String> giterator = globlist.iterator();
+		String firstval;
+		//for skipping line no
+		giterator.next();
+		firstval = giterator.next();
+		firstval=firstval.toUpperCase();
+		ScriptEngineManager mgr = new ScriptEngineManager();
+		ScriptEngine engine = mgr.getEngineByName("JavaScript");
+		int accnt = 1;
+		if(firstval.equals("END"))
+			System.exit(0);
+		if(firstval.equals("RET"))
+				{sil1.forret(giterator);}
+		while (giterator.hasNext())
+		{    
+
+			if(accnt==1)
+			{
+				++accnt;
+			}
+			else
+			{
+				firstval=giterator.next();
+				firstval=firstval.toUpperCase();
+				if(firstval.equals(""))
+				{if(giterator.hasNext())
+				{firstval=giterator.next();
+				firstval=firstval.toUpperCase();}
+				else
+					break;}
+			}
+			
+			switch(firstval)
+			{
+			case "PRINT" :
+			{   
+				int printhis = sil1.forprint(giterator);
+				if(printhis!=-1)
+					System.out.print(printhis);
+
+				//TEST ends
+
+				break;
+			}
+			case "PRINTLN" :
+			{   
+
+
+				int printhis = sil1.forprintln(giterator);            
+				if(printhis!=-1)
+					System.out.println(printhis);
+
+				//TEST ends
+
+				break;
+			}
+			case "INTEGER":
+			{
+				sil1.forint(giterator);
+				continue;
+			}
+			case "LET":
+			{   
+				sil1.forlet(giterator);
+
+				continue;
+			}
+			case "INPUT":
+			{   		
+				sil1.forinputtest(giterator);
+				continue;
+			}
+			case "END":
+			{
+
+				System.exit(0);
+
+			}
+			case "GOTO":
+			{
+				sil1.forgoto(giterator);
+				continue;
+			}
+			case "GOSUB":
+			{
+				sil1.forgosub(giterator);
+				continue;
+			}
+			case "RET":
+			{
+				sil1.forret(giterator);
+				continue;
+			}
+			case "IF":
+			{  boolean a;
+				a=sil1.forif(giterator);
+				
+					continue;
+						
+			}
+			case "\"\"":
+				continue;
+			case "/":
+			{   if(giterator.next().equals("/"))
+				while(giterator.hasNext())
+				{
+					giterator.next();
+				}
+			break;
+			}
+			default:
+			{  			
+
+				String temp = firstval;
+				//TEst area
+				int firstint ;
+				String sbstring;
+				String tempifnotint = null;
+				String evalme = "";
+				String tempnextstore;
+
+				if(temp.equals("+")||temp.equals("-")||temp.equals("*")||temp.equals("/")||temp.equals("(")||temp.equals(")")||temp.equals("%"))
+				{
+					evalme+=temp;
+
+				}
+				else
+				{
+					String str = temp.toString();
+					if(str == null || str.isEmpty()) System.out.println("Empty");;
+
+					StringBuilder sb = new StringBuilder();
+					boolean found = false;
+					char tempchar = str.charAt(0);
+					if(Character.isDigit(tempchar))
+					{
+						for(char c : str.toCharArray()){
+							if(Character.isDigit(c)){
+								sb.append(c);
+								found = true;
+							} else if(found){
+								// If we already found a digit before and this char is not a digit, stop looping
+								break;                
+							}
+						}
+						sbstring=sb.toString();
+						firstint = Integer.parseInt(sbstring);
+						evalme += firstint;
+						sb.setLength(0);
+					}
+					else
+					{
+						Storeobj value = mapper.get(str);
+						if(value!=null)
+						{
+							Integer memory = value.getvalue();
+							firstint=memory;
+							evalme += firstint;
+						}
+						else
+						{System.out.println("not defined var "+str);
+						}
+					}
+
+
+
+				}
+				while(giterator.hasNext())
+				{  temp=giterator.next();
+
+
+
+				if(temp.equals("+")||temp.equals("-")||temp.equals("*")||temp.equals("/")||temp.equals("(")||temp.equals(")")||temp.equals("%"))
+				{
+					evalme+=temp;
+
+				}
+				else
+				{
+					String str = temp.toString();
+					if(str == null || str.isEmpty()) System.out.println("Empty");;
+
+					StringBuilder sb = new StringBuilder();
+					boolean found = false;
+					char tempchar = str.charAt(0);
+					if(Character.isDigit(tempchar))
+					{
+						for(char c : str.toCharArray()){
+							if(Character.isDigit(c)){
+								sb.append(c);
+								found = true;
+							} else if(found){
+								// If we already found a digit before and this char is not a digit, stop looping
+								break;                
+							}
+						}
+						sbstring=sb.toString();
+						firstint = Integer.parseInt(sbstring);
+						evalme += firstint;
+						sb.setLength(0);
+					}
+					else
+					{
+						Storeobj value = mapper.get(str);
+						if(value!=null)
+						{
+							Integer memory = value.getvalue();
+							firstint=memory;
+							evalme += firstint;
+						}
+						else
+						{System.err.println("not defined var "+str);
+						}
+					}
+
+
+
+				}	
+
+
+
+				}
+
+
+
+				int abc;
+				try{
+
+					abc = (int)engine.eval(evalme);
+
+				}
+				catch( java.lang.ClassCastException e)
+				{
+					Double d = (double)engine.eval(evalme);
+					abc= d.intValue();
+
+				} 
+
+				System.out.println(abc);
+
+
+			}
+
+			}
+
+		}
+		globlist.clear();
+	}
+
+	public void splitInput(String input)
+	{
+		try{
+
+			SIL sil1 = new SIL();
+			Queue<Integer> fifo = new LinkedList<Integer>();
+
+			StringBuilder builder = new StringBuilder(input);
+			String patternString = "[\"]";
+			Pattern pattern = Pattern.compile(patternString,Pattern.CASE_INSENSITIVE);
+			Matcher matcher = pattern.matcher(builder);
+			int count = 0;
+			while(matcher.find()) {
+				count++;
+				fifo.add(matcher.start());    //add all index for the occurrence of " in a queue
+
+			}
+			List<String> strParts = new ArrayList<>();
+			int countforqueue=0;
+			int last = 0;
+			int front = 0;
+			String part = new String();
+			while (!fifo.isEmpty()) {    //Separate string with and without double quotes
+				countforqueue++;
+				front = fifo.remove();
+				if (countforqueue%2 != 0)
+				{   part = input.substring(last,front);
+
+				strParts.add(part);
+				last=front;
+				}
+				else
+				{
+					part = input.substring(last,front+1);
+					strParts.add(part);
+					last=front+1;
+				}
+
+			}
+			part = input.substring(last,input.length());
+			strParts.add(part);
+
+			int i=0;
+
+
+			i=0;
+			String temp = new String();
+			while (i < strParts.size()) {
+				temp=strParts.get(i);
+
+				if(temp.indexOf("\"")!= -1)
+				{ 
+					globlist.add(temp);
+					//System.out.println(temp);    // Print the string within double quotes as it is
+				}
+
+				else
+				{
+
+					if(temp.indexOf(" ")== 0)
+					{
+						temp = temp.substring(1);
+					}
+					sil1.getTokens(temp);    // Send the remaining strings to getTokens for further analysis
+				}
+
+				i++;
+			}
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+
+	}
+	/*
+	 * Used to get tokens for a given substring split from splitInput
+	 */
+	public void getTokens(String input)
+	{   
+		try
+		{
+			StringBuilder inputBuilder = new StringBuilder(input);
+			Stack<Integer> lifo = new Stack();
+			Stack<Integer> lifo1 = new Stack();
+			String patternString = "[\"+\\-*<>()|/&@{};,!$//[//]#%=]";  //Pattern for special characters
+			String patternString1 = "Println|Print";                   //Pattern for Reserved words
+			Pattern patternSpecial = Pattern.compile(patternString,Pattern.CASE_INSENSITIVE);
+			Pattern patternReserved = Pattern.compile(patternString1,Pattern.CASE_INSENSITIVE);
+			Matcher Special = patternSpecial.matcher(inputBuilder);
+			Matcher Reserved = patternReserved.matcher(inputBuilder);
+			int count = 0;
+
+
+			while(Special.find()) {
+				count++;
+
+
+				lifo.push(Special.start());  // Push indexs of occurrence of all special characters in stack 
+			}    
+
+
+			while ( !lifo.empty() )
+			{   int a = lifo.pop();
+			if(a!=0)
+			{
+				if (inputBuilder.charAt(a-1) != ' ')
+				{
+					inputBuilder.insert(a,' ');  //Put a space before each special char
+				}      
+			}
+			}
+			int count1 = 0;
+			Special.reset();
+			while(Special.find()) {
+				count1 ++;
+
+
+				lifo1.push(Special.end());
+			}    
+
+			while ( !lifo1.empty() )
+			{   int a = lifo1.pop();
+			if(a != inputBuilder.length())
+				if (inputBuilder.charAt(a) != ' ') 
+				{
+					inputBuilder.insert(a,' ');  //Put a space after each special char
+				}      
+			}
+
+			while(Reserved.find()) {
+				count++;          
+				lifo.push(Reserved.start());
+			}    
+
+			while ( !lifo.empty() )
+			{   int a = lifo.pop();
+			if(a != 0 )
+			{
+				if (inputBuilder.charAt(a-1) != ' ')
+				{
+					inputBuilder.insert(a,' ');  //Put a space before each reserved word
+				}      
+			}
+			}
+
+			count1 = 0;
+			Reserved.reset();
+			while(Reserved.find()) {
+				count1 ++;              
+				lifo1.push(Reserved.end());
+			}    
+
+			while ( !lifo1.empty() )
+			{   int a = lifo1.pop();
+			if(a != inputBuilder.length())
+				if (inputBuilder.charAt(a) != ' ')
+				{
+					inputBuilder.insert(a,' ');     //Put a space after each reserved word
+				}      
+			}
+
+			input = inputBuilder.toString();
+
+			String[] words = input.split(" ");
+			for (String s: words) {           
+				globlist.add(s);
+				//System.out.println(s); 
+			}
+
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+
+	}
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+package Grammar;
+
+public class Storeobj {
+
+
+private String name;
+private String type;
+private int value;
+
+
+
+public Storeobj(String a, String b, int c )
+{
+	name = a;
+	type = b;
+	value = c;
+}
+
+String getname()
+{
+return name;	
+}
+
+String gettype()
+{
+return type;	
+}
+
+Integer getvalue()
+{
+return value;	
+}
+
+void setvalue(int c)
+{
+value = c;	
+}
+}
+
